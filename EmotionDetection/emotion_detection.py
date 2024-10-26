@@ -1,4 +1,5 @@
-import requests, json
+import requests
+import json
 
 def emotion_detector(text_to_analyse):
     URL = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
@@ -11,9 +12,13 @@ def emotion_detector(text_to_analyse):
     
     formatted_response = json.loads(response.text)
     
-    emotion_predictions = formatted_response['emotionPredictions'][0]['emotion']
+    if response.status_code == 200:
+        emotion_predictions = formatted_response['emotionPredictions'][0]['emotion']
+        dominant_emotion = max(emotion_predictions.items(), key=lambda x: x[1])[0]
     
-    dominant_emotion = max(emotion_predictions.items(), key=lambda x: x[1])[0]
+    elif response.status_code == 400:
+        emotion_predictions = None
+        dominant_emotion = None
 
     return {
         'anger': emotion_predictions['anger'],
